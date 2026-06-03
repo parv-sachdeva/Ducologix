@@ -1,0 +1,228 @@
+---
+title: "A Practical Introduction to RNA Sequencing: From Library Prep to Differential Expression"
+date: "2026-01-28"
+author: "Ducologix Team"
+excerpt: "RNA sequencing has become the workhorse of transcriptomics. This post walks through the full RNA-seq workflow — from experimental design to statistical interpretation — with practical guidance for researchers new to the technology."
+tags: ["RNA-seq", "Transcriptomics", "Bioinformatics", "NGS"]
+---
+
+RNA sequencing (RNA-seq) has transformed how we study gene expression. By capturing a snapshot of the transcriptome — every RNA molecule present in a cell or tissue at a given moment — it allows us to ask questions that were simply unanswerable a decade ago: Which genes respond to a drug treatment? How does gene expression differ between healthy and diseased tissue? What splice variants are active in a given cell type?
+
+This post is a practical walkthrough of the RNA-seq workflow, aimed at researchers who understand the biology but are new to the computational side.
+
+---
+
+## 1. Experimental Design: The Most Important Step
+
+Before a single sample enters the sequencer, the experimental design determines the quality of your conclusions. The most common mistakes happen here, not in the analysis.
+
+### Replication
+
+Three biological replicates is the accepted minimum for differential expression analysis. With fewer than three, statistical models lack the power to distinguish true signal from noise. If your budget is tight, **invest in replicates over sequencing depth**.
+
+### Sequencing Depth
+
+For bulk RNA-seq of a complex mammalian transcriptome:
+
+- **20–30 million reads per sample** is sufficient for detecting moderately expressed genes.
+- **50–100 million reads** is needed if you are profiling low-abundance transcripts, alternative splicing, or non-coding RNAs.
+
+### Randomisation and Batch Effects
+
+If samples are processed across multiple days or sequencing runs, batch effects are unavoidable. Plan your experiment so that each biological group is represented in every batch. Tools like `ComBat` or mixed-effects models can correct for batch post-hoc, but randomisation is always preferable.
+
+---
+
+## 2. Library Preparation
+
+The choice of library preparation protocol shapes everything downstream.
+
+| Protocol | Use case |
+|---|---|
+| **Poly-A selection** | Standard mRNA profiling; depletes rRNA via poly-A capture |
+| **Ribosomal RNA depletion** | Captures non-coding RNA, degraded RNA, or prokaryotic RNA |
+| **Strand-specific (dUTP)** | Preserves read orientation; needed for antisense transcript detection |
+| **Single-cell (10x Chromium)** | Profiles individual cells; see our upcoming scRNA-seq post |
+
+For most mammalian expression studies, **stranded poly-A selection** is the right default.
+
+---
+
+## 3. Sequencing and Raw Data
+
+Modern short-read sequencers (Illumina NovaSeq, NextSeq) produce reads in FASTQ format — plain text files containing the nucleotide sequence and a quality score for each base.
+
+A single sample at 30 million paired-end 150 bp reads produces roughly **6–8 GB of compressed FASTQ data**.
+
+Before any analysis, assess read quality with **FastQC**. Key metrics to inspect:
+
+- Per-base sequence quality (Phred scores should stay above Q30)
+- Adapter contamination
+- Sequence duplication levels
+- GC content distribution
+
+If adapters are present, trim them with **Trim Galore** or **fastp** before alignment.
+
+---
+
+## 4. Alignment
+
+Aligning RNA reads to a reference genome is more complex than DNA alignment because reads frequently span exon–intron boundaries (splice junctions). A **splice-aware aligner** is essential.
+
+### STAR (Spliced Transcripts Alignment to a Reference)
+
+STAR is the current gold standard for bulk RNA-seq alignment. It is fast, accurate, and generates the BAM files and read count matrices that downstream tools expect.
+
+```bash
+# Index the genome (run once)
+STAR --runMode genomeGenerate \
+     --genomeDir /ref/star_index \
+     --genomeFastaFiles GRCh38.fa \
+     --sjdbGTFfile Homo_sapiens.GRCh38.gtf \
+     --runThreadN 16
+
+# Align reads
+STAR --runMode alignReads \
+     --genomeDir /ref/star_index \
+     --readFilesIn sample_R1.fastq.gz sample_R2.fastq.gz \
+     --readFilesCommand zcat \
+     --outSAMtype BAM SortedByCoordinate \
+     --quantMode GeneCounts \
+     --runThreadN 16 \
+     --outFileNamePrefix ./output/sample_
+```
+
+A good alignment should map **≥ 85%** of reads to the genome. Lower rates suggest contamination, poor RNA quality, or a mismatch between the reads and the reference species.
+
+### HISAT2
+
+A memory-efficient alternative to STAR, useful when working on machines with limited RAM.
+
+---
+
+## 5. Quantification
+
+Once reads are aligned, we count how many reads map to each gene. This produces a **count matrix**: rows are genes, columns are samples, values are raw read counts.
+
+### Recommended approach: pseudo-alignment with Salmon or kallisto
+
+For many analyses, you can skip traditional alignment entirely. Tools like **Salmon** and **kallisto** pseudo-align reads directly to the transcriptome, producing transcript-level abundance estimates (TPM) in minutes rather than hours.
+
+```bash
+# Quantify with Salmon
+salmon quant \
+  -i /ref/salmon_index \
+  -l A \
+  -1 sample_R1.fastq.gz \
+  -2 sample_R2.fastq.gz \
+  -p 8 \
+  --validateMappings \
+  -o ./quant/sample
+```
+
+Use the `tximport` R package to import Salmon output into DESeq2 or edgeR, aggregating transcript counts to gene level.
+
+---
+
+## 6. Differential Expression Analysis
+
+The goal is to identify genes whose expression levels differ statistically between two or more conditions.
+
+### The count model
+
+Raw counts are **not normally distributed** — they follow a negative binomial distribution. Standard t-tests are inappropriate. Use dedicated tools that model count data correctly:
+
+- **DESeq2** — the most widely used; excellent for small sample sizes
+- **edgeR** — a strong alternative, particularly for low-count data
+- **limma-voom** — best for large datasets with many samples
+
+### A minimal DESeq2 workflow in R
+
+```r
+library(DESeq2)
+
+# Create DESeq2 object from count matrix
+dds <- DESeqDataSetFromMatrix(
+  countData = count_matrix,
+  colData   = sample_metadata,
+  design    = ~ condition
+)
+
+# Filter lowly-expressed genes
+dds <- dds[rowSums(counts(dds) >= 10) >= 3, ]
+
+# Run the DESeq2 pipeline
+dds <- DESeq(dds)
+
+# Extract results: treated vs control
+res <- results(dds, contrast = c("condition", "treated", "control"))
+res <- lfcShrink(dds, coef = "condition_treated_vs_control", type = "apeglm")
+
+# Significant genes at FDR < 0.05 and |LFC| > 1
+sig <- subset(res, padj < 0.05 & abs(log2FoldChange) > 1)
+```
+
+### Key metrics to report
+
+| Metric | What it means |
+|---|---|
+| **log2FoldChange (LFC)** | Direction and magnitude of change. An LFC of 1 = 2-fold upregulation. |
+| **padj** | Adjusted p-value (Benjamini-Hochberg FDR). Use this, not the raw p-value. |
+| **baseMean** | Average expression across all samples. Low baseMean genes are noisy. |
+
+---
+
+## 7. Downstream Analysis
+
+Differential expression results are a starting point, not an endpoint.
+
+### Visualisation
+
+- **Volcano plot** — log2FC on x-axis, −log10(padj) on y-axis. Quickly conveys the landscape of significant genes.
+- **MA plot** — mean expression vs. log fold change. Checks for systematic biases.
+- **Heatmap** — expression patterns of the top differentially expressed genes across samples.
+- **PCA** — confirms samples cluster by biological condition, not by batch.
+
+### Pathway and Gene Ontology Enrichment
+
+Use **clusterProfiler** (R) or **g:Profiler** (web) to ask: are the genes changing together associated with a known biological process?
+
+```r
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+ego <- enrichGO(
+  gene         = rownames(sig),
+  OrgDb        = org.Hs.eg.db,
+  keyType      = "ENSEMBL",
+  ont          = "BP",
+  pAdjustMethod = "BH",
+  qvalueCutoff  = 0.05
+)
+
+dotplot(ego, showCategory = 20)
+```
+
+---
+
+## 8. Common Pitfalls
+
+**Over-interpreting fold change without considering statistical significance.** A 10-fold change with a padj of 0.3 is meaningless. Always filter on adjusted p-value first.
+
+**Comparing TPM/RPKM values across samples for differential expression.** These normalised values are not appropriate inputs to DESeq2 or edgeR. Always use raw counts.
+
+**Ignoring outlier samples.** PCA is your early-warning system. A sample that clusters away from its replicates should be investigated — not automatically removed, but understood.
+
+**Using a reference genome from a different species or assembly version.** Mismatched genome/annotation versions silently reduce alignment rates and corrupt gene names.
+
+---
+
+## Summary
+
+A well-executed RNA-seq experiment follows a clear arc: rigorous design, careful library preparation, quality-controlled alignment, count-based statistical testing, and biologically grounded interpretation. Each step has established best practices and tools. The analysis itself is reproducible and scriptable — which means results are auditable, shareable, and extensible.
+
+At Ducologix, we build end-to-end RNA-seq pipelines using Nextflow that automate every step from FASTQ to a fully annotated differential expression report. If you would like to apply these methods to your own data, [get in touch](/contact).
+
+---
+
+*This post reflects best practices as of early 2026. The bioinformatics tooling landscape evolves quickly — always check for updated versions of the tools mentioned.*
