@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 340" width="500" height="340" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="500" height="340" rx="12" fill="url(#bg2)"/>
+  <text x="250" y="28" text-anchor="middle" font-size="14" font-weight="600" fill="#0f172a">PCA — Sample Clustering by Condition</text>
+
+  <!-- Axes -->
+  <line x1="70" y1="50" x2="70" y2="290" stroke="#cbd5e1" stroke-width="1.5"/>
+  <line x1="70" y1="290" x2="460" y2="290" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <!-- Axis labels -->
+  <text x="265" y="320" text-anchor="middle" font-size="11" fill="#64748b">PC1 (42% variance)</text>
+  <text x="18" y="175" text-anchor="middle" font-size="11" fill="#64748b" transform="rotate(-90 18 175)">PC2 (21% variance)</text>
+
+  <!-- Control cluster (purple) — left side -->
+  <ellipse cx="155" cy="165" rx="48" ry="38" fill="#7c3aed" opacity="0.08" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+  <circle cx="148" cy="155" r="7" fill="#7c3aed" opacity="0.85"/>
+  <circle cx="162" cy="172" r="7" fill="#7c3aed" opacity="0.85"/>
+  <circle cx="140" cy="178" r="7" fill="#7c3aed" opacity="0.85"/>
+  <circle cx="168" cy="152" r="7" fill="#7c3aed" opacity="0.85"/>
+  <circle cx="152" cy="188" r="7" fill="#7c3aed" opacity="0.85"/>
+  <text x="155" y="222" text-anchor="middle" font-size="10" font-weight="600" fill="#7c3aed">Control (n=5)</text>
+
+  <!-- Treated cluster (teal) — right side -->
+  <ellipse cx="340" cy="145" rx="52" ry="42" fill="#0d9488" opacity="0.08" stroke="#0d9488" stroke-width="1" stroke-dasharray="4,3"/>
+  <circle cx="330" cy="135" r="7" fill="#0d9488" opacity="0.85"/>
+  <circle cx="350" cy="150" r="7" fill="#0d9488" opacity="0.85"/>
+  <circle cx="322" cy="158" r="7" fill="#0d9488" opacity="0.85"/>
+  <circle cx="358" cy="132" r="7" fill="#0d9488" opacity="0.85"/>
+  <circle cx="340" cy="168" r="7" fill="#0d9488" opacity="0.85"/>
+  <text x="340" y="208" text-anchor="middle" font-size="10" font-weight="600" fill="#0d9488">Treated (n=5)</text>
+
+  <!-- Outlier dot (orange) with annotation -->
+  <circle cx="245" cy="235" r="7" fill="#f59e0b" stroke="#d97706" stroke-width="1.5"/>
+  <line x1="245" y1="228" x2="245" y2="200" stroke="#d97706" stroke-width="1" stroke-dasharray="3,2"/>
+  <rect x="188" y="185" width="115" height="30" rx="5" fill="#fef3c7" stroke="#fbbf24" stroke-width="1"/>
+  <text x="245" y="199" text-anchor="middle" font-size="9" font-weight="600" fill="#92400e">Potential outlier</text>
+  <text x="245" y="210" text-anchor="middle" font-size="8" fill="#78350f">investigate before removing</text>
+
+  <!-- Legend -->
+  <circle cx="85" cy="315" r="6" fill="#7c3aed" opacity="0.85"/>
+  <text x="96" y="319" font-size="10" fill="#475569">Control</text>
+  <circle cx="160" cy="315" r="6" fill="#0d9488" opacity="0.85"/>
+  <text x="171" y="319" font-size="10" fill="#475569">Treated</text>
+  <circle cx="238" cy="315" r="6" fill="#f59e0b"/>
+  <text x="249" y="319" font-size="10" fill="#475569">Outlier</text>
+</svg>

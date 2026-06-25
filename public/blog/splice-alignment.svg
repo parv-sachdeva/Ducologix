@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" width="640" height="220" font-family="Inter, system-ui, sans-serif">
+  <rect width="640" height="220" rx="12" fill="#f8fafc"/>
+  <text x="320" y="28" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">Splice-Aware Alignment — Reads Spanning Exon–Intron Boundaries</text>
+
+  <!-- Genome track label -->
+  <text x="16" y="70" font-size="10" font-weight="600" fill="#475569">Genome</text>
+
+  <!-- Exon 1 -->
+  <rect x="60" y="58" width="120" height="22" rx="4" fill="#7c3aed" opacity="0.85"/>
+  <text x="120" y="74" text-anchor="middle" font-size="10" font-weight="600" fill="white">Exon 1</text>
+
+  <!-- Intron line -->
+  <line x1="180" y1="69" x2="340" y2="69" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="260" y="62" text-anchor="middle" font-size="9" fill="#94a3b8">Intron (removed in mRNA)</text>
+
+  <!-- Exon 2 -->
+  <rect x="340" y="58" width="120" height="22" rx="4" fill="#7c3aed" opacity="0.85"/>
+  <text x="400" y="74" text-anchor="middle" font-size="10" font-weight="600" fill="white">Exon 2</text>
+
+  <!-- Intron line 2 -->
+  <line x1="460" y1="69" x2="520" y2="69" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+  <!-- Exon 3 -->
+  <rect x="520" y="58" width="90" height="22" rx="4" fill="#7c3aed" opacity="0.85"/>
+  <text x="565" y="74" text-anchor="middle" font-size="10" font-weight="600" fill="white">Exon 3</text>
+
+  <!-- Separator -->
+  <line x1="40" y1="100" x2="620" y2="100" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="16" y="118" font-size="10" font-weight="600" fill="#475569">Reads</text>
+
+  <!-- Read 1: entirely within exon 1 -->
+  <rect x="75" y="108" width="80" height="14" rx="3" fill="#2dd4bf" opacity="0.8"/>
+  <text x="115" y="119" text-anchor="middle" font-size="8" fill="white">read 1</text>
+
+  <!-- Read 2: spanning exon1–exon2 junction (split alignment) -->
+  <rect x="140" y="128" width="55" height="14" rx="3" fill="#0d9488" opacity="0.85"/>
+  <path d="M195,135 Q267,105 340,135" stroke="#0d9488" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+  <rect x="340" y="128" width="55" height="14" rx="3" fill="#0d9488" opacity="0.85"/>
+  <text x="247" y="119" text-anchor="middle" font-size="8" fill="#0d9488" font-weight="600">split read — spans junction</text>
+
+  <!-- Read 3: within exon 2 -->
+  <rect x="355" y="108" width="90" height="14" rx="3" fill="#2dd4bf" opacity="0.8"/>
+  <text x="400" y="119" text-anchor="middle" font-size="8" fill="white">read 3</text>
+
+  <!-- Read 4: spanning exon2–exon3 -->
+  <rect x="420" y="148" width="52" height="14" rx="3" fill="#0d9488" opacity="0.85"/>
+  <path d="M472,155 Q496,128 520,155" stroke="#0d9488" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+  <rect x="520" y="148" width="52" height="14" rx="3" fill="#0d9488" opacity="0.85"/>
+
+  <!-- Read 5: within exon 3 -->
+  <rect x="530" y="108" width="68" height="14" rx="3" fill="#2dd4bf" opacity="0.8"/>
+  <text x="564" y="119" text-anchor="middle" font-size="8" fill="white">read 5</text>
+
+  <!-- mRNA track -->
+  <line x1="40" y1="185" x2="620" y2="185" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="16" y="204" font-size="10" font-weight="600" fill="#475569">mRNA</text>
+  <rect x="60" y="192" width="120" height="18" rx="3" fill="#7c3aed" opacity="0.6"/>
+  <text x="120" y="205" text-anchor="middle" font-size="9" fill="white">Exon 1</text>
+  <rect x="182" y="192" width="120" height="18" rx="3" fill="#7c3aed" opacity="0.6"/>
+  <text x="242" y="205" text-anchor="middle" font-size="9" fill="white">Exon 2</text>
+  <rect x="304" y="192" width="90" height="18" rx="3" fill="#7c3aed" opacity="0.6"/>
+  <text x="349" y="205" text-anchor="middle" font-size="9" fill="white">Exon 3</text>
+  <text x="410" y="205" font-size="9" fill="#94a3b8">← introns spliced out in mature mRNA</text>
+</svg>

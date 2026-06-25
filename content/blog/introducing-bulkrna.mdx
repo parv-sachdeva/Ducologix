@@ -1,0 +1,106 @@
+---
+title: "Introducing BulkRNA: An End-to-End Bulk RNA-Seq Analysis App with an Inbuilt AI Agent"
+date: "2026-06-25"
+author: "Ducologix Team"
+excerpt: "BulkRNA is an open-source Shiny application that takes you from raw count matrices to biological interpretation in a single browser window — sample QC, differential expression, gene ontology testing, and an inbuilt AI agent that answers questions about your own results."
+tags: ["RNA-seq", "Shiny", "AI Agent", "Bioinformatics"]
+---
+
+Bulk RNA sequencing produces rich data, but extracting biological insight from it still requires stitching together a half-dozen tools, writing R scripts, and interpreting outputs that were never designed to talk to one another. BulkRNA is our answer to that friction: a single Shiny application that carries a dataset from raw counts all the way to pathway-level conclusions, and then lets you interrogate the results in plain language through an inbuilt AI agent.
+
+You can try the live app here: <a href="https://01987d73-5f8b-5123-753b-7dae5c1b39c3.share.connect.posit.cloud/" target="_blank" rel="noopener noreferrer">BulkRNA on Posit Connect</a>.
+
+---
+
+## What BulkRNA Does
+
+The application is structured as a guided, tab-based workflow. You load your samples once and the data flows forward through each analytical stage without leaving the browser.
+
+### 1. Sample Upload and Management
+
+BulkRNA accepts count matrices in standard formats (CSV, TSV) alongside a sample metadata file describing your experimental groups, covariates, and batch variables. Multiple samples can be uploaded and managed within a single session, making it straightforward to compare independent experiments or add a new condition without restarting the analysis.
+
+### 2. Sample Quality Control
+
+Before any statistical test runs, BulkRNA checks whether your samples are worth testing. The QC module computes and visualises:
+
+- **Library size distribution** — flags samples with abnormally low or high total counts
+- **Per-sample gene detection rates** — reveals samples where RNA degradation may have silenced a fraction of the transcriptome
+- **PCA and hierarchical clustering** — immediately shows whether samples group by biological condition or by a confounding variable such as batch or collection date
+- **Correlation heatmaps** — highlights outlier samples that diverge from their replicates
+
+Samples that fail QC can be excluded interactively; the downstream modules update automatically.
+
+### 3. Gene-Level Analysis
+
+The gene analysis module lets you explore the expression landscape before committing to a statistical comparison. Features include:
+
+- **Expression filters** — remove genes below a count threshold or those detected in fewer than *n* samples
+- **Normalisation preview** — compare raw counts, CPM, and variance-stabilised (VST) values side by side
+- **Gene-level plots** — boxplots and violin plots for any gene of interest, stratified by sample group
+- **Top variable genes** — ranked by inter-sample variance, useful for sanity-checking that the biology is driving variation rather than technical noise
+
+### 4. Differential Expression Analysis
+
+The DE module wraps **DESeq2** behind an interface that does not require you to write a single line of R. You specify:
+
+- The contrast you want to test (e.g. treated vs. control)
+- Any covariates to include in the model design
+- Significance thresholds (adjusted p-value and log2 fold-change cutoffs)
+
+BulkRNA then runs the full DESeq2 pipeline — size-factor normalisation, dispersion estimation, Wald testing, and Benjamini-Hochberg correction — and returns:
+
+- An interactive **volcano plot** with hover labels and click-to-highlight
+- An **MA plot** to check for expression-dependent biases
+- A sortable, searchable **results table** with export to CSV
+- A **heatmap** of the top differentially expressed genes across all samples
+
+The results feed directly into the next stage; no copy-pasting of gene lists required.
+
+### 5. Gene Ontology and Pathway Enrichment
+
+BulkRNA passes your significant gene list to **clusterProfiler** and runs enrichment tests against three GO namespaces — Biological Process, Molecular Function, and Cellular Component — as well as KEGG pathways. Results are shown as:
+
+- Dot plots ranked by gene ratio and adjusted p-value
+- Bar charts of the top enriched terms
+- An enrichment map that clusters related terms and surfaces higher-level biological themes
+
+You can switch between over-representation analysis (ORA) and gene-set enrichment analysis (GSEA) depending on whether you want to test a filtered gene list or use the full ranked list.
+
+---
+
+## The Inbuilt AI Agent
+
+This is where BulkRNA goes beyond a standard point-and-click pipeline. An AI agent is embedded directly in the application and has read access to your analysis results — the DE table, enrichment results, QC metrics, and sample metadata.
+
+You can ask it questions in plain language:
+
+> *"Which of my significant genes are associated with immune response pathways?"*
+
+> *"My treated samples cluster with the controls on PCA. What could explain that?"*
+
+> *"Summarise the top biological processes enriched in the upregulated genes."*
+
+> *"Is there evidence of a batch effect in my data?"*
+
+The agent reasons over the actual numbers from your session, not generic RNA-seq knowledge. It can flag potential quality issues you may have missed, suggest follow-up analyses, and explain what a result means in biological terms. This is particularly useful when results are ambiguous or when someone on the team is less familiar with the statistical outputs.
+
+---
+
+## Who It Is For
+
+BulkRNA is designed for research groups who run RNA-seq experiments regularly but do not have a dedicated bioinformatician on every project. Wet-lab scientists can upload their data and walk through the full analysis without writing code. Bioinformaticians can use it as a rapid QC and exploration environment before switching to a scripted pipeline for final results.
+
+The application is built entirely in R using Shiny and depends only on packages available from CRAN and Bioconductor, so it can be deployed on a local machine, a Shiny Server, or Posit Connect without any proprietary dependencies.
+
+---
+
+## Getting Started
+
+The app is live and free to try — no installation required. Head to <a href="https://01987d73-5f8b-5123-753b-7dae5c1b39c3.share.connect.posit.cloud/" target="_blank" rel="noopener noreferrer">BulkRNA on Posit Connect</a>, upload your count matrix and sample metadata, and work through the analysis in your browser.
+
+If you would like to deploy BulkRNA within your institution or integrate it into an existing data platform, [get in touch with us at Ducologix](/contact).
+
+---
+
+*BulkRNA is open source and actively developed. The AI agent module requires an API key configured in the application settings.*

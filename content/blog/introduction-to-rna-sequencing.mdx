@@ -10,6 +10,8 @@ RNA sequencing (RNA-seq) has transformed how we study gene expression. By captur
 
 This post is a practical walkthrough of the RNA-seq workflow, aimed at researchers who understand the biology but are new to the computational side.
 
+![RNA-seq end-to-end workflow — from RNA extraction through pathway analysis](/blog/rnaseq-workflow.svg)
+
 ---
 
 ## 1. Experimental Design: The Most Important Step
@@ -93,6 +95,8 @@ STAR --runMode alignReads \
 ```
 
 A good alignment should map **≥ 85%** of reads to the genome. Lower rates suggest contamination, poor RNA quality, or a mismatch between the reads and the reference species.
+
+![Splice-aware alignment — how reads span exon–intron boundaries](/blog/splice-alignment.svg)
 
 ### HISAT2
 
@@ -182,6 +186,10 @@ Differential expression results are a starting point, not an endpoint.
 - **MA plot** — mean expression vs. log fold change. Checks for systematic biases.
 - **Heatmap** — expression patterns of the top differentially expressed genes across samples.
 - **PCA** — confirms samples cluster by biological condition, not by batch.
+
+![Volcano plot — upregulated genes (teal, right) and downregulated genes (purple, left) against non-significant hits (grey)](/blog/volcano-plot.svg)
+
+![PCA plot — samples should cluster by biological group; outliers warrant investigation before exclusion](/blog/pca-plot.svg)
 
 ### Pathway and Gene Ontology Enrichment
 
